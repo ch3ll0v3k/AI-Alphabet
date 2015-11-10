@@ -1,6 +1,8 @@
 #!/usr/bin/python
 # -*- coding: utf-8-*-
-# =======================================================================
+############################################################################################
+############################################################################################
+
 from pybrain.tools.shortcuts import buildNetwork
 from pybrain.supervised.trainers import BackpropTrainer
 from pybrain.datasets import SupervisedDataSet
@@ -14,7 +16,11 @@ import operator
 import Image
 import os
 import sys
-# =======================================================================
+import time
+
+############################################################################################
+############################################################################################
+
 class GetLetter(object):
 
     # ===================================================================
@@ -22,12 +28,12 @@ class GetLetter(object):
 
         self.arg                                    = arg;
         self._NET_NAME                              = self.arg;
-        self._NET                                   = NetworkReader.readFrom(self._NET_NAME);
+        self._NET                                   = None;
         self.TEXT_BIN_DATA_SET                      = '_DATA_('+self._NET_NAME+').dataset';
         self._TTL_ERRORS                            = None;
         self._TTL_CORRECT                           = 0;
         self._FEEDER                                = 0;
-        self._ANWS                                  = None;
+        self._ANSW                                  = None;
         self._SAVER                                 = 0;
         self._VALIND_COLOR_RANGE                    = 175;
         self._LETTER_ARRAY                          = [];
@@ -94,56 +100,62 @@ class GetLetter(object):
                                                         "Z": [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,  1  ]  
 
                                                     };
-        # -------------------------------------------
-        print("Using network: "+self._NET_NAME);
-        self._autotest();
-        # -------------------------------------------
+        # -----------------------------------------------------------------------
+        
 
-    # ===================================================================
+    # =======================================================================
+    def _readNetworkFromFile(self):
+
+        # -----------------------------------------------------------------------
+        self._pr_line();
+        print("| _readNetworkFromFile("+self._NET_NAME+"): \n");
+        start_time = time.time();
+        # -----------------------------------------------------------------------
+
+        self._NET = NetworkReader.readFrom(self._NET_NAME);
+
+
+        # -----------------------------------------------------------------------
+        print("| Done in: "+str(time.time()-start_time)+'sec');
+        # -----------------------------------------------------------------------
+
+
+    # =======================================================================
     def _autotest(self):
 
+        # -----------------------------------------------------------------------
+        self._pr_line();
+        print("| _autotest(self): \n");
+        start_time = time.time();
+        # -----------------------------------------------------------------------
 
-        # ---------------------------------------
         FS = open(self.TEXT_BIN_DATA_SET, "r");
         
+        _line_c = 1;
+
+        # -----------------------------------------------------------------------
         for line in FS:
+
             LTR = line[0:1];
-            DATA = line[2:len(line)-2].split(":");
-
-            #DATA = DATA.pop();
-
-            print(len(DATA));
-
-            return;
-            self._ANWS = self._NET.activate(DATA);
-            
-            #print("-----------------------------------------------------------------------------------------------")
-            #print(self._ANWS);
-            #print("-----------------------------------------------------------------------------------------------")
-            #print(sorted(self._ANWS));
-            #print("-----------------------------------------------------------------------------------------------")
-            #print(sorted(self._ANWS)[51]);
-            #print("-----------------------------------------------------------------------------------------------")
-            
+            DATA = line[2:len(line)-2].split(':');
+            self._ANSW = self._NET.activate(DATA);            
             _COR_ANS = -1;
             _COR_POS = -1;
 
-            for X in xrange(0, len(self._ANWS)):
-                if float(self._ANWS[X]) > _COR_ANS:
-                    _COR_ANS = float(self._ANWS[X]);
+            for X in xrange(0, len(self._ANSW)):
+                if float(self._ANSW[X]) > _COR_ANS:
+                    _COR_ANS = float(self._ANSW[X]);
                     _COR_POS = X;
 
             if LTR == self._dataSet[_COR_POS]:
-                #print(LTR+" == "+self._dataSet[_COR_POS]+" -> "+str(float(self._ANWS[_COR_POS])));
+                #print(LTR+" == "+self._dataSet[_COR_POS]+" -> "+str(float(self._ANSW[_COR_POS])));
                 self._TTL_CORRECT += 1;
+                print('"'+LTR+'" : _COR_ANS: ('+str(_COR_ANS)+') | INDEX: ('+str(_COR_POS)+') : '+"\n"+str(self._ANSW)+"\n");
             
             elif LTR.upper() == self._dataSet[_COR_POS].upper():
-                #print(LTR+" != "+self._dataSet[_COR_POS]+" -> UPPER -> "+str(float(self._ANWS[_COR_POS])));
+                #print(LTR+" != "+self._dataSet[_COR_POS]+" -> UPPER -> "+str(float(self._ANSW[_COR_POS])));
                 self._TTL_CORRECT += 1;
-            
-            else:
-                pass;
-                #print(LTR+" != "+self._dataSet[_COR_POS]+" -> "+str(float(self._ANWS[_COR_POS])));
+                print('"'+LTR+'" : _COR_ANS: ('+str(_COR_ANS)+') | INDEX: ('+str(_COR_POS)+') : '+"\n"+str(self._ANSW)+"\n");
         
         # -----------------------------------------------------------------------
         FS.close();
@@ -156,26 +168,42 @@ class GetLetter(object):
             _ONE_PR = 0.017972682;
 
         print("-----------------------------------------------------------------------------------------------")
-        print(str(self._TTL_CORRECT)+" of "+str(list_Counter)+" or "+str(self._TTL_CORRECT*_ONE_PR)+"%");
+        print(str(self._TTL_CORRECT)+" of "+str(list_Counter)+" or "+str(float(self._TTL_CORRECT*_ONE_PR))+"%");
         print("-----------------------------------------------------------------------------------------------")
+
+        # -----------------------------------------------------------------------
+        print("| Done in: "+str(time.time()-start_time)+'sec');
         # -----------------------------------------------------------------------
 
-    # ===================================================================
+    # =======================================================================
     def _asc(self, _INPUT_DATA):
-        #----------------------------------------
-        self._ANWS = self._NET.activate(_INPUT_DATA);
-        print(self._ANWS);
-        sys.exit();
-        #----------------------------------------
 
-    # ===================================================================
-# =======================================================================
-    
-# =======================================================================
+        # -----------------------------------------------------------------------
+        self._ANSW = self._NET.activate(_INPUT_DATA);
+        print(self._ANSW);
+        sys.exit();
+        # -----------------------------------------------------------------------
+
+    # =======================================================================
+    def _pr_line(self):
+
+        # -----------------------------------------------------------------------
+        print('|'+('-'*64)+'|');
+        # -----------------------------------------------------------------------
+
+    # =======================================================================
+
+############################################################################################
+############################################################################################
+
 if __name__ == '__main__':
     
     if len(sys.argv) > 1:
         print(' Using: '+sys.argv[1]);
         _GetLetter = GetLetter(sys.argv[1]);
+        _GetLetter._readNetworkFromFile();
+        _GetLetter._autotest();
+
+
     else:
         print(" Usage: \n\t ./exe [NETWORK_NAME.xml] \n")

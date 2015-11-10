@@ -18,6 +18,9 @@ _lines = [
 
 
 for x in xrange(0, len(_lines)):
+
+    _lines[x] = _lines[x].strip();
+
     _lines[x] = _lines[x][0:len(_lines[x])-2];
 
 
