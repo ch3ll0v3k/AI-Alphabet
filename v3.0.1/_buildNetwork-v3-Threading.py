@@ -58,7 +58,7 @@ class AINetBuilder(object):
         # -------------------------------------------------------------------
         self._VALIND_COLOR_RANGE                    = 175;
         self._LETTER_ARRAY                          = [];
-        self._DATA_SET_DIR                          = "alpha/";
+        self._DATA_SET_DIR                          = "alphabet/";
         self._DATA_SET_FILES_DICT                   = {};
         self.TEXT_BIN_DATA_SET                      = '_DATA_('+self._NET_NAME+').dataset';
         # -----------------------------------------------------------------------
