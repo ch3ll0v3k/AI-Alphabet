@@ -222,6 +222,8 @@ class AINetBuilder(object):
                     _Y += 1;
                     _X = 0;
                 # -------------------------------------------------------------------
+                # Trim last symbol:
+                _line_data_text_bin_str = _line_data_text_bin_str[ 0:len(_line_data_text_bin_str)-2 ];
 
                 FS.write(_line_data_text_bin_str+"\n");
 
